@@ -2,6 +2,7 @@
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 #include <ArduinoJson.h>
+#include "libbot.h"
 
 #ifndef WIFI_SSID
 #define WIFI_SSID "PELOTERO"
@@ -9,12 +10,15 @@
 #endif
 
 #define BOT_TOKEN "6155203747:AAHXbcoaD_Axnoor4fBVeJQW1fVG4BXjOmk"
-const unsigned long tiempo = 1000; //tiempo medio entre mensajes de escaneo
+#define ID_Chat "677317280"//ID_Chat se obtiene de telegram
+#define PIN_RELE 0
+
 WiFiClientSecure secured_client;
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
+
 unsigned long tiempoAnterior;  //última vez que se realizó el análisis de mensajes
+const unsigned long tiempo = 1000; //tiempo medio entre mensajes de escaneo
 int inicio = 1;
-#define ID_Chat "677317280"//ID_Chat se obtiene de telegram
 
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 
@@ -31,8 +35,8 @@ void mensajesNuevos(int numerosMensajes) {
         bot.sendMessage(chat_id, "Encendiendo");  //Enviamos el mensaje
         //Serial.println("prendiendo led");
         delay(500);
-        digitalWrite(LED_BUILTIN, LOW);
-        digitalWrite(2, HIGH);
+        digitalWrite(LED_BUILTIN, HIGH);
+        digitalWrite(PIN_RELE, LOW);
         break;
       }
       case 2:
@@ -40,65 +44,44 @@ void mensajesNuevos(int numerosMensajes) {
         bot.sendMessage(chat_id, "Apagando");  //Enviamos el mensaje
         //Serial.println("apagando led");
         delay(500);
+        digitalWrite(LED_BUILTIN, LOW);
+        digitalWrite(PIN_RELE, HIGH);
+        delay(2000);
         digitalWrite(LED_BUILTIN, HIGH);
-        digitalWrite(2, LOW);
+        digitalWrite(PIN_RELE, LOW);
         break;
       }
       case 3:
       {
-        if(digitalRead(2) == HIGH){
-          msg = "Estado del led: *Encendido*";
+        if(digitalRead(PIN_RELE) == HIGH){
+          msg = "Estado del relé: *Encendido*";
         }
         else{
-          msg = "Estado del led: *Apagado*";
+          msg = "Estado del relé: *Apagado*";
         }
         bot.sendMessage(chat_id, msg, "");
         break;
       }
       case 9:
       {
-        String ayuda = "Bienvenido al sistema de control, "
-                       ".\n";
-        ayuda += "Estas son tus opciones.\n\n";
-        ayuda += "/on: para encender el led \n";
-        ayuda += "/off: para apagar el led \n";
-        ayuda += "/stat: para saber el estado del led \n";
-        ayuda += "/ayuda: Imprime este menú \n";
-        ayuda += "Recuerda que el sistema distingue entre mayuculas y minusculas \n";
+        String ayuda = generateMenu();
         bot.sendMessage(chat_id, ayuda, "");
         break;
       }
       default:
       {
-        bot.sendMessage(chat_id, "no comprendo ese comando :( \n" );
+        msg = "no comprendo ese comando \U0001F611 \n";
+        bot.sendMessage(chat_id, msg );
         break;
       }
     }
   }
 }
 
-int validarOpcion(const String &text){
-  if(text == "/on"){
-    return 1;
-  }
-  if(text == "/off"){
-    return 2;
-  }
-  if(text == "/stat"){
-    return 3;
-  }
-  if(text == "/ayuda"){
-    return 9;
-  } else {
-    return 0;
-  }
-
-}
-
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT); 
   digitalWrite(LED_BUILTIN, HIGH);
-  pinMode(2, OUTPUT);
+  pinMode(PIN_RELE, OUTPUT);
   //Serial.begin(115200);
   // Intenta conectarse a la red wifi
   //Serial.print("Conectando a la red ");
@@ -111,11 +94,14 @@ void setup() {
     //Serial.print(".");
     delay(500);
   }
-  //Serial.print("\nConectado a la red wifi. Dirección IP: ");
-  //Serial.println(WiFi.localIP());
+  
   if (inicio == 1) {
     //Serial.println("Sistema preparado");
-    bot.sendMessage(ID_Chat, "Sistema preparado!!!, escribe /ayuda para ver las opciones", "");  //Enviamos un mensaje a telegram para informar que el sistema está listo}
+    String msg = "Hola soy el topobot \n";
+    msg += "El sistema está preparado \U0001FAE1 \n";
+    bot.sendMessage(ID_Chat, msg, "");  //Enviamos un mensaje a telegram para informar que el sistema está listo}
+    msg = generateMenu();
+    bot.sendMessage(ID_Chat, msg, "");
     //Serial.println("Mensaje enviado");
     inicio = 0;
   }
