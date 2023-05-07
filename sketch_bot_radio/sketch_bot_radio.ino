@@ -5,12 +5,12 @@
 #include "libbot.h"
 
 #ifndef WIFI_SSID
-#define WIFI_SSID "PELOTERO"
-#define WIFI_PASSWORD "laclavees1981"
+#define WIFI_SSID "Sysbot"
+#define WIFI_PASSWORD "sysbot123"
 #endif
 
-#define BOT_TOKEN "6155203747:AAHXbcoaD_Axnoor4fBVeJQW1fVG4BXjOmk"
-#define ID_Chat "677317280"//ID_Chat se obtiene de telegram
+#define BOT_TOKEN "6233970597:AAGs8wYfgzcX1wL9emQyJqAykFUcA1TPq3M"
+#define ID_Chat "2009670589"//ID_Chat se obtiene de telegram
 #define PIN_RELE 0
 
 WiFiClientSecure secured_client;
@@ -30,19 +30,17 @@ void mensajesNuevos(int numerosMensajes) {
 
     int opcion = validarOpcion(text);
     switch (opcion){
-      case 1:
-      {
-        bot.sendMessage(chat_id, "Encendiendo");  //Enviamos el mensaje
-        //Serial.println("prendiendo led");
-        delay(500);
-        digitalWrite(LED_BUILTIN, HIGH);
-        digitalWrite(PIN_RELE, LOW);
-        break;
-      }
+      // case 1:
+      // {
+      //   bot.sendMessage(chat_id, "Encendiendo la radio");  //Enviamos el mensaje
+      //   delay(500);
+      //   digitalWrite(LED_BUILTIN, HIGH);
+      //   digitalWrite(PIN_RELE, LOW);
+      //   break;
+      // }
       case 2:
       {
-        bot.sendMessage(chat_id, "Apagando");  //Enviamos el mensaje
-        //Serial.println("apagando led");
+        bot.sendMessage(chat_id, "Apagando la radio");  //Enviamos el mensaje
         delay(500);
         digitalWrite(LED_BUILTIN, LOW);
         digitalWrite(PIN_RELE, HIGH);
@@ -82,10 +80,8 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT); 
   digitalWrite(LED_BUILTIN, HIGH);
   pinMode(PIN_RELE, OUTPUT);
-  //Serial.begin(115200);
+
   // Intenta conectarse a la red wifi
-  //Serial.print("Conectando a la red ");
-  //Serial.print(WIFI_SSID);
   secured_client.setInsecure();
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   configTime(0, 0, "pool.ntp.org");
@@ -96,13 +92,11 @@ void setup() {
   }
   
   if (inicio == 1) {
-    //Serial.println("Sistema preparado");
-    String msg = "Hola soy el topobot \n";
+    String msg = "Hola soy el bot de la radio \n";
     msg += "El sistema está preparado \U0001FAE1 \n";
     bot.sendMessage(ID_Chat, msg, "");  //Enviamos un mensaje a telegram para informar que el sistema está listo}
     msg = generateMenu();
     bot.sendMessage(ID_Chat, msg, "");
-    //Serial.println("Mensaje enviado");
     inicio = 0;
   }
 }
@@ -113,7 +107,6 @@ void loop() {
     int numerosMensajes = bot.getUpdates(bot.last_message_received + 1);
 
     while (numerosMensajes) {
-      //Serial.println("Comando recibido");
       mensajesNuevos(numerosMensajes);
       numerosMensajes = bot.getUpdates(bot.last_message_received + 1);
     }
