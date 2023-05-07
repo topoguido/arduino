@@ -1,9 +1,9 @@
 #include <WString.h>
 
 int validarOpcion(String text){
-  if(text == "/on"){
-    return 1;
-  }
+  // if(text == "/on"){
+  //   return 1;
+  // }
   if(text == "/off"){
     return 2;
   }
@@ -19,8 +19,8 @@ int validarOpcion(String text){
 
 String generateMenu(){
   String ayuda = "Estas son tus opciones.\n\n";
-  ayuda += "/on: para encender el led \n";
-  ayuda += "/off: para apagar el led \n";
+  //ayuda += "/on: para encender la radio \n";
+  ayuda += "/off: para apagar la radio \n";
   ayuda += "/stat: para saber el estado del led \n";
   ayuda += "/ayuda: Imprime este menú \n";
   ayuda += "Recuerda que el sistema distingue entre mayuculas y minusculas \n";
