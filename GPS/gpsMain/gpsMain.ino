@@ -10,6 +10,9 @@ String lat_str , lng_str, sats_str;
 int lcdColumns = 16;
 int lcdRows = 2;
 
+uint8_t col = 0;
+uint8_t row = 0;
+
 LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
 
 //=======================================================================
@@ -39,15 +42,18 @@ void loop() {
   // GPS:
   while (ss.available() > 0)
   {
-    lcd.setCursor(0,0);
-    Serial.println("Dentro del while");
-    lcd.print("Dentro del while");
+
+    //myPrint(col, row, String("Dentro del while"), false, true);
+
     if (gps.encode(ss.read()))
     { 
-      Serial.println("Dentro del primer if");
+      myPrint(col, row, String("GPS activo"), false, true);
+      delay(500);
       if (gps.location.isValid())
       {
-        Serial.println("Dentro del segundo if");
+        myPrint(col, row, String("Ubicación válida"), false, true);
+        delay(500);
+
         latitude = gps.location.lat();
         lat_str = String(latitude , 6);
         longitude = gps.location.lng();
@@ -57,27 +63,54 @@ void loop() {
 
         //digitalWrite(12, HIGH); 
 
-        lcd.setCursor(0,0);
-        lcd.print("LAT: " + lat_str);
+        //lcd.setCursor(0,0);
+        //lcd.print("LAT: " + lat_str);
+
+        myPrint(col, row, lat_str, false, true);
         
-        lcd.setCursor(1,0);
-        lcd.print("LONG: " + lng_str);
+        //lcd.setCursor(1,0);
+        //lcd.print("LONG: " + lng_str);
         
-        lcd.setCursor(2,0);
-        lcd.print("SATS: " + sats_str);
+        myPrint(col, row, lng_str, true, true);
+
+        //lcd.setCursor(2,0);
+        //lcd.print("SATS: " + sats_str);
+
+        myPrint(col, row, sats_str, false, true);
 
       }else{
-        lcd.print("Buscando satélites...");
-        Serial.println("Buscando satélites");
+        myPrint(col, row, String("Buscando satélites"), false, true);
 		    //digitalWrite(12, LOW);        
       }
     } else{
-      lcd.print("Sin GPS");
-      Serial.println("Sin GPS");
+      myPrint(col, row, String("Sin GPS"), false, true);
     }
 
     delay(1000);
-    Serial.println("Limpiando pantalla");
     lcd.clear();
   }
+}
+
+void myPrint(uint8_t col, uint8_t row, String message, bool newLine, bool serial){
+  if(!message.isEmpty()){
+    
+    if(!newLine){
+      lcd.clear();
+      lcd.setCursor(col, row);  
+    } else{
+      col = 0;
+      row++;
+    }
+    
+    lcd.print(message);
+    if(serial){
+      Serial.println(message);
+    }
+    if(!newLine){
+      row = row + message.length();
+    } 
+
+  }
+
+
 }
