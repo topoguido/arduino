@@ -19,36 +19,45 @@ UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 unsigned long tiempoAnterior;  //última vez que se realizó el análisis de mensajes
 const unsigned long tiempo = 1000; //tiempo medio entre mensajes de escaneo
 int inicio = 1;
+bool apagar = false;
 
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 
 void mensajesNuevos(int numerosMensajes) {
+  apagar = false;
+  
   for (int i = 0; i < numerosMensajes; i++) {
     String chat_id = bot.messages[i].chat_id;
     String text = bot.messages[i].text;
+    String update_id = String(bot.messages[i].update_id);
     String msg;
+    
+    Serial.print("Posicion i: " + String(i) + "\n");
+    Serial.print("update_id: " + update_id + " \n");
+    Serial.println("text: " + text + "\n");
 
     int opcion = validarOpcion(text);
     switch (opcion){
-      case 1:
-      {
-        bot.sendMessage(chat_id, "Encendiendo");  //Enviamos el mensaje
-        //Serial.println("prendiendo led");
-        delay(500);
-        digitalWrite(LED_BUILTIN, HIGH);
-        digitalWrite(PIN_RELE, LOW);
-        break;
-      }
+      // case 1:
+      // {
+      //   bot.sendMessage(chat_id, "Encendiendo");  //Enviamos el mensaje
+      //   Serial.println("prendiendo led");
+      //   delay(500);
+      //   digitalWrite(LED_BUILTIN, HIGH);
+      //   digitalWrite(PIN_RELE, LOW);
+      //   break;
+      // }
       case 2:
       {
-        bot.sendMessage(chat_id, "Apagando");  //Enviamos el mensaje
-        //Serial.println("apagando led");
-        delay(500);
-        digitalWrite(LED_BUILTIN, LOW);
-        digitalWrite(PIN_RELE, HIGH);
-        delay(2000);
-        digitalWrite(LED_BUILTIN, HIGH);
-        digitalWrite(PIN_RELE, LOW);
+        // bot.sendMessage(chat_id, "Apagando");  //Enviamos el mensaje
+        // //Serial.println("apagando led");
+        // delay(500);
+        // //digitalWrite(LED_BUILTIN, LOW);
+        // digitalWrite(PIN_RELE, HIGH);
+        // delay(2000);
+        // //digitalWrite(LED_BUILTIN, HIGH);
+        // digitalWrite(PIN_RELE, LOW);
+        apagar = true;
         break;
       }
       case 3:
@@ -82,7 +91,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT); 
   digitalWrite(LED_BUILTIN, HIGH);
   pinMode(PIN_RELE, OUTPUT);
-  //Serial.begin(115200);
+  Serial.begin(115200);
   // Intenta conectarse a la red wifi
   //Serial.print("Conectando a la red ");
   //Serial.print(WIFI_SSID);
@@ -111,14 +120,25 @@ void loop() {
   //Verifica si hay datos nuevos en telegram cada 1 segundo
   if (millis() - tiempoAnterior > tiempo) {
     int numerosMensajes = bot.getUpdates(bot.last_message_received + 1);
-
+    
+    
     while (numerosMensajes) {
       //Serial.println("Comando recibido");
+      Serial.print("Numeros mensajes: " + String(numerosMensajes) + "\n");
       mensajesNuevos(numerosMensajes);
+      if(apagar){
+        digitalWrite(LED_BUILTIN, LOW);
+        digitalWrite(PIN_RELE, HIGH);
+        delay(1000);
+        digitalWrite(LED_BUILTIN, HIGH);
+        digitalWrite(PIN_RELE, LOW);
+        apagar = false;
+      }
       numerosMensajes = bot.getUpdates(bot.last_message_received + 1);
     }
     tiempoAnterior = millis();
   }
 }
+
 
 
