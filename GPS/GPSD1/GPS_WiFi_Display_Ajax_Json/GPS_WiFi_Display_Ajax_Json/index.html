@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+  <meta charset='utf-8'>
+  <style>
+    body {font-size:100%;} 
+    #main {display: table; margin: auto;  padding: 0 10px 0 10px; } 
+    h2 {text-align:center; } 
+    p { text-align:center; }
+  </style>
+  <script>
+   function refresh(refreshPeriod) 
+   {
+      setTimeout("location.reload(true);", refreshPeriod);
+   } 
+   window.onload = refresh(1000);
+  </script>
+  <title>GPS</title>
+ </head>
+ 
+ <body>
+   <div id='main'>
+     <h2>GPS</h2>
+     <div id='position'> 
+       <p>Latitud: %lat%</p>
+     </div>
+     <div id='position'> 
+       <p>Longitud: %long%</p>
+     </div>
+     <div id='count'> 
+       <p>Satélites: %sats%</p>
+     </div>
+     <div id='count'> 
+       <p>Altitud: %alt%</p>
+     </div>
+     <div id='count'> 
+       <p>Fecha/Hora: %dateTime%</p>
+     </div>
+   </div> 
+ </body>
+</html>
