@@ -17,8 +17,8 @@ const char webpage[] PROGMEM = R"=====(
 <center>
 <div>
 <h1>Control de valvula</h1>
-  <button class="button" onclick="send(1, number.value)">ABRIR</button>
-  <button class="button" onclick="send(0, number.value)">CERRAR</button><BR>
+  <button class="button" onclick="sendOpen(document.getElementById("steps"))">ABRIR</button>
+  <button class="button" onclick="sendClose(document.getElementById("steps"))">CERRAR</button><BR>
 </div>
  <br>
 <div><h2>
@@ -28,10 +28,10 @@ const char webpage[] PROGMEM = R"=====(
 <br>
 <div>
 	<h1>Configuracion de pasos</h1>
-	<input type="number" name="steps" step="5"></input>
+	<input type="number" id="steps" step="5"></input>
 </div>
 <script>
-function send(valve_sts, steps) 
+function send(steps) 
 {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
