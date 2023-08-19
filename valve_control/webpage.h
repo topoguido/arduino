@@ -31,15 +31,24 @@ const char webpage[] PROGMEM = R"=====(
 	<input type="number" id="steps" step="5"></input>
 </div>
 <script>
-function send(steps) 
+function sendOpen(steps) 
 {
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("state").innerHTML = this.responseText;
-    }
+  xhttp.open("GET", "valve_open?steps="+steps, true);
+  xhttp.onload = function() {
+    document.getElementById("state").innerHTML = this.responseText;
   };
-  xhttp.open("GET", "valve_state?state="+valve_sts + "&steps="+steps, true);
+  
+  xhttp.send();
+}
+
+function sendClose(steps) 
+{
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("GET", "valve_close?steps="+steps, true);
+  xhttp.onload = function() {
+    document.getElementById("state").innerHTML = this.responseText;
+  };
   xhttp.send();
 }
 
