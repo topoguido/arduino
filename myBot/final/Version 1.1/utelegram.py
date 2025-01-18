@@ -1,8 +1,6 @@
 import time
 import gc
-import ujson
 import urequests
-import utime
 
 class ubot:
     
