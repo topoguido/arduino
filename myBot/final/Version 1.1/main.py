@@ -3,7 +3,6 @@ from config import utelegram_config
 #from config import wifi_config
 
 import utelegram
-import network
 import time
 import gc
 import hardware
