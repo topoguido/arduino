@@ -2,24 +2,23 @@ import time
 import gc
 import ujson
 import urequests
-
+import hardware
+import utime
 
 class ubot:
     
     def __init__(self, token, offset=0):
         self.url = 'https://api.telegram.org/bot' + token
-#         self.commands = {}
-#         self.register('/ping', self.reply_ping)
-#         self.register('/saluda',self.saluda)
         
         self.commands = self.getCommands()
         print(f'Lista de comandos: {self.commands}')
-        self.register_commands(self.commands)
 #         self.default_handler = self.get_message
         self.default_handler = None
         self.message_offset = offset
         self.sleep_btw_updates = 3
-
+        
+        self.sensor = hardware.sensor()
+        
         messages = self.read_messages()
         if messages:
             if self.message_offset==0:
@@ -41,7 +40,7 @@ class ubot:
                 response_json = response.json()
                 if 'result' in response_json:
                     for item in response_json['result']:
-                        command = item['command']
+                        command = '/' + item['command']
                         desc = item['description']
                         commands[command] = desc
                     return commands    
@@ -58,18 +57,27 @@ class ubot:
             return None
         finally:
             response.close()
-        
+    
     def get_message(self, message):
         self.send(message['message']['chat']['id'], 'Procesando tu solicitud...')
-        
 
     def reply_ping(self, message):
-        print(message)
+        print('Respondiendo al ping')
         self.send(message['message']['chat']['id'], 'pong')
     
     def saluda(self, chat_id):
         print('Saludando')
         self.send(int(chat_id), 'Hola, soy el bot')
+    
+    def return_temp(self, chat_id):
+        utime.sleep(1)
+        self.sensor.update_values()
+        utime.sleep(2)
+        temp = self.sensor.read_temp()
+        hum = self.sensor.read_hum()
+        resp = 'Temperatura: %0.1f' % temp + '° - Humedad: %0.1f%%' % hum
+        print(f'Temperatura: {temp} - Humedad: {hum}')
+        self.send(chat_id, 'Los datos del sensor son: ' + resp)
         
     def send(self, chat_id, text):
         data = {'chat_id': chat_id, 'text': text}
@@ -88,11 +96,10 @@ class ubot:
             'limit': 1,
             'timeout': 30,
             'allowed_updates': ['message']}
-
         try:
             update_messages = urequests.post(self.url + '/getUpdates', json=self.query_updates).json() 
             if 'result' in update_messages:
-                print('read_messages: Mensajes entrantes')
+                #print(f'Metodo read_messages: {update_messages}')
                 for item in update_messages['result']:
                     result.append(item)
             return result
@@ -121,13 +128,6 @@ class ubot:
                         self.message_offset = message['update_id']
                         self.message_handler(message)
                         break
-    def register_commands(self, commands):
-        for item in commands:
-            print(f'Registrando comando: {item['command']} - {item['description']}')
-            self.register('/' + item['command'], item['description'])
-        
-    def register(self, command, handler):
-        self.commands[command] = handler
 
     def set_default_handler(self, handler):
         self.default_handler = handler
@@ -138,8 +138,21 @@ class ubot:
     def message_handler(self, message):
         if 'text' in message['message']:
             parts = message['message']['text'].split(' ')
-            if parts[0] in self.commands:
-                self.commands[parts[0]](message)
+            if 'entities' in message['message']:
+                for entity in message['message']['entities']:
+                    if 'type' in entity and entity['type'] == 'bot_command':
+                        print('Es comando')
+                        if parts[0] in self.commands:
+                            print(f'Comando recibido: {parts[0]}')
+                            if parts[0] == '/saluda':
+                                self.saluda(message['message']['chat']['id'])
+                            elif parts[0] == '/ping':
+                                self.reply_ping(message)
+                            elif parts[0] == '/temp':
+                                self.return_temp(message['message']['chat']['id'])
+                        else:
+                            self.send(message['message']['chat']['id'], 'No reconozco ese comando \U0001F611')
+                            if self.default_handler:
+                                self.default_handler(message)
             else:
-                if self.default_handler:
-                    self.default_handler(message)
+                print(f'Es un mensaje normal con el texto: {parts}')

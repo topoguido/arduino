@@ -30,8 +30,8 @@ const char webpage[] PROGMEM = R"=====(
 		  xhttp.getResponseHeader("Content-type", "text/json");
 		  xhttp.onload = function() {
 			  const obj = JSON.parse(this.responseText);
-			  document.getElementById("lat").innerHTML = obj.lat;
-        document.getElementById("long").innerHTML = obj.long;
+			  document.getElementById("lat").innerHTML = parseFloat(obj.lat).toFixed(8);
+        document.getElementById("long").innerHTML = parseFloat(obj.long).toFixed(8)
         document.getElementById("alt").innerHTML = obj.alt;
         document.getElementById("sats").innerHTML = obj.sats;
         document.getElementById("dateTime").innerHTML = obj.dateTime;

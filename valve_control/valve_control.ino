@@ -3,16 +3,16 @@
 #include <ESP8266WebServer.h>
 #include "webpage.h"
 
-#ifndef LED
-#define LED 0
-#define DIR 5 
-#endif
+#define LED 1
+#define DIR 0
+#define STEP 2 
 
 String state, steps;
-uint8_t steps = 0;
 
 const char* ssid = "PELOTERO";
 const char* password = "laclavees1981";
+
+int delayStep = 3;
 
 ESP8266WebServer server(80);
 
@@ -31,8 +31,10 @@ void valve_open()
 {
   steps = server.arg("steps");
   digitalWrite(LED,HIGH); //LED ON
-  state = "OPEN";
+  state = "ABIERTA";
   Serial.println("Abriendo...");
+  Serial.println(steps);
+  moveEngine(steps.toInt());
   server.send(200, "text/plane", state);
 }
 
@@ -40,17 +42,21 @@ void valve_close()
 {
   steps = server.arg("steps");
   digitalWrite(LED,LOW); //LED OFF
-  state = "CLOSE";
+  state = "CERRADA";
   Serial.println("Cerrando...");
+  Serial.println(steps);
+  moveEngine(steps.toInt());
   server.send(200, "text/plane", state);
 }
 
 void setup(void)
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   WiFi.begin(ssid, password);
   Serial.println("");
   pinMode(LED,OUTPUT); 
+  pinMode(DIR,OUTPUT); 
+  pinMode(STEP,OUTPUT); 
   while (WiFi.status() != WL_CONNECTED) {Serial.print("Connecting...");}
   Serial.println("");
   Serial.print("Connected to ");
@@ -74,9 +80,9 @@ void moveEngine(uint8_t steps)
   digitalWrite(DIR, HIGH);
   for(int i = 0; i < steps; i++)
   {
-    digitalWrite(STEP, HIGH);
+    digitalWrite(steps, HIGH);
     delay(delayStep);
-    digitalWrite(STEP, LOW);
+    digitalWrite(steps, LOW);
     delay(delayStep);
   }
 }
