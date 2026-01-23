@@ -17,6 +17,7 @@ const char webpage[] PROGMEM = R"=====(
 		const long = document.getElementById("long");
 		const alt =  document.getElementById("alt");
 		const sats = document.getElementById("sats");
+		const hdop = document.getElementById("hdop");
 		const dateTime = document.getElementById("dateTime");
 
 		setInterval(function() 
@@ -30,10 +31,11 @@ const char webpage[] PROGMEM = R"=====(
 		  xhttp.getResponseHeader("Content-type", "text/json");
 		  xhttp.onload = function() {
 			  const obj = JSON.parse(this.responseText);
-			  document.getElementById("lat").innerHTML = parseFloat(obj.lat).toFixed(8);
-        document.getElementById("long").innerHTML = parseFloat(obj.long).toFixed(8)
+			  document.getElementById("lat").innerHTML = Number(obj.lat).toFixed(8);
+        document.getElementById("long").innerHTML = Number(obj.long).toFixed(8);
         document.getElementById("alt").innerHTML = obj.alt;
         document.getElementById("sats").innerHTML = obj.sats;
+				document.getElementById("hdop").innerHTML = obj.hdop;
         document.getElementById("dateTime").innerHTML = obj.dateTime;
 		  };
 		  
@@ -49,7 +51,7 @@ const char webpage[] PROGMEM = R"=====(
   <tbody>
     <tr style="height: 14px;">
       <td style="width: 32.5665%; text-align: center; height: 14px;">
-       <h3><strong><span style="font-size: 18pt;"><em>Matria GPS</em></span><br /></strong></h3>
+       <h3><strong><span style="font-size: 18pt;"><em>GPS</em></span><br /></strong></h3>
       </td>
     </tr>
   </tbody>
@@ -73,7 +75,11 @@ const char webpage[] PROGMEM = R"=====(
 				<td style="width: 50%; text-align: center;" id="sats"></td>
 			</tr>
 			<tr>
-				<td style="width: 20%; text-align: center;" >Date/Time:</td>
+				<td style="width: 20%; text-align: center;">HDOP:</td>
+				<td style="width: 50%; text-align: center;" id="hdop"></td>
+			</tr>
+			<tr>
+				<td style="width: 20%; text-align: center;" >Fecha/Hora:</td>
 				<td style="width: 50%; text-align: center;" id="dateTime"></td>
 			</tr>
 		</tbody>

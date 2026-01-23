@@ -1,6 +1,6 @@
 #include "webpage.h"
-#include "graph_matria.h"
 #include "data.h"
+#include "graph.h"
 /* Create a WiFi access point and provide a web server on it. */
 #define __DEBUG__
 #include <Adafruit_GFX.h>
@@ -23,7 +23,7 @@ const char *ssid = APSSID;
 
 ESP8266WebServer server(80);
 
-static const int minSats = 5;
+uint32_t minSats = 6;
 TinyGPSPlus gps;
 static const int RXPin = 14, TXPin = 12;
 SoftwareSerial ss(RXPin, TXPin);// WEMOS: GPIO14 and GPIO12 (PIN D5 and D6)
@@ -41,9 +41,9 @@ uint8_t TEXT_SIZE = 2;
 
 gpsData gpsD;
 
-TinyGPSCustom pdop(gps, "GPGSA", 15); // $GPGSA sentence, 15th element
-TinyGPSCustom hdop(gps, "GPGSA", 16); // $GPGSA sentence, 16th element
-TinyGPSCustom vdop(gps, "GPGSA", 17); // $GPGSA sentence, 17th element
+TinyGPSCustom pdop(gps, "GNGSA", 15); // $GPGSA sentence, 15th element
+TinyGPSCustom hdop(gps, "GNGSA", 16); // $GPGSA sentence, 16th element
+TinyGPSCustom vdop(gps, "GNGSA", 17); // $GPGSA sentence, 17th element
 
 /* Just a little test message.  Go to http://192.168.4.1 in a web browser
    connected to this access point to see it.
@@ -91,6 +91,7 @@ void genJson()
   doc["long"] = gpsD.longitud;
   doc["alt"] = gpsD.alt;
   doc["sats"] = gpsD.sats;
+  doc["hdop"] = gpsD.hdop;
   doc["dateTime"] = gpsD.dateTime;
 
   char json[120];
@@ -117,6 +118,7 @@ void genGPSData()
       gpsD.longitud = gps.location.lng();
       gpsD.sats = gps.satellites.value();
       gpsD.alt = gps.altitude.meters();
+      gpsD.hdop = gps.hdop.hdop();
       gpsD.dateTime = genDate() + " - " + genTime();
       
       if(TEXT_SIZE == 1)
@@ -129,11 +131,12 @@ void genGPSData()
       }
       if(TEXT_SIZE == 2)
       {
-        myPrint(col, row, String(gpsD.latitud, 6), false, false);
-        myPrint(col, row, String(gpsD.longitud, 6), true, false);
-        myPrint(col, row, "", true, false);
-        myPrint(col, row, "Sats: " + String(gpsD.sats), true, false);
-        myPrint(col, row, "Alt: "  + String(gpsD.alt), true, false);
+        /*myPrint(col, row, String(gpsD.latitud, 8), false, false);
+        myPrint(col, row, String(gpsD.longitud, 8), true, false);
+        myPrint(col, row, "", true, false);*/
+        myPrint(col, row, "Sats: " + String(gpsD.sats), false, false);
+        myPrint(col, row, "HDOP: " + String(gpsD.hdop), true, false);
+        myPrint(col, row, "Alt: "  + String(gpsD.alt,5), true, false);
         //printSerialGPS();
       }
     } else {
@@ -185,6 +188,8 @@ void printSerialGPS()
   Serial.print(" | ");    
   Serial.print("Alt: ") + String(gps.altitude.meters(), 0);
   Serial.print(" | ");    
+  Serial.print("HDOP: ") + String(gps.hdop.hdop(), 2);
+  Serial.print(" | ");    
   Serial.print("Date: " + genDate());
   Serial.print(" | ");    
   Serial.print("Time: " + genTime());
@@ -193,13 +198,9 @@ void printSerialGPS()
 void printLogo()
 {
   display.clearDisplay();
-  display.drawBitmap(0, 0, logo, 128, 64, WHITE);
-  display.display();
-  delay(4000);
-  display.clearDisplay();
   myPrint(16, 20, "Iniciando", false, true);
   display.display();
-  delay(4000);
+  delay(5000);
 }
 
 void printSat()
