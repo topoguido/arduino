@@ -136,7 +136,7 @@ void genGPSData()
         myPrint(col, row, "", true, false);*/
         myPrint(col, row, "Sats: " + String(gpsD.sats), false, false);
         myPrint(col, row, "HDOP: " + String(gpsD.hdop), true, false);
-        myPrint(col, row, "Alt: "  + String(gpsD.alt,5), true, false);
+        myPrint(col, row, "Alt: "  + String(gpsD.alt,1), true, false);
         //printSerialGPS();
       }
     } else {
