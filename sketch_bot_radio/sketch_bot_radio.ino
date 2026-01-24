@@ -21,8 +21,8 @@
 // #define WIFI_SSID "Sysbot"
 // #define WIFI_PASSWORD "sysbot123"
 // #endif
-// #define BOT_TOKEN "6233970597:AAGs8wYfgzcX1wL9emQyJqAykFUcA1TPq3M"
-// #define ID_Chat "2009670589"//ID_Chat se obtiene de telegram
+// #define BOT_TOKEN ""
+// #define ID_Chat ""//ID_Chat se obtiene de telegram
 //****************************************************
 
 //****************************************************

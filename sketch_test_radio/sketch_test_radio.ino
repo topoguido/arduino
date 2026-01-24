@@ -9,8 +9,8 @@
 #define WIFI_PASSWORD "laclavees1981"
 #endif
 
-#define BOT_TOKEN "6155203747:AAHXbcoaD_Axnoor4fBVeJQW1fVG4BXjOmk"
-#define ID_Chat "677317280"//ID_Chat se obtiene de telegram
+#define BOT_TOKEN ""
+#define ID_Chat ""//ID_Chat se obtiene de telegram
 #define PIN_RELE 0
 
 WiFiClientSecure secured_client;
