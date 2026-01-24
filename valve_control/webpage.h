@@ -17,8 +17,8 @@ const char webpage[] PROGMEM = R"=====(
 <center>
 <div>
 <h1>Control de valvula</h1>
-  <button class="button" onclick="send(1, number.value)">ABRIR</button>
-  <button class="button" onclick="send(0, number.value)">CERRAR</button><BR>
+  <button class="button" onclick="sendOpen()">ABRIR</button>
+  <button class="button" onclick="sendClose()">CERRAR</button><BR>
 </div>
  <br>
 <div><h2>
@@ -28,18 +28,29 @@ const char webpage[] PROGMEM = R"=====(
 <br>
 <div>
 	<h1>Configuracion de pasos</h1>
-	<input type="number" name="steps" step="5"></input>
+	<input type="number" id="steps" min="0" max="200" step="5"></input>
 </div>
 <script>
-function send(valve_sts, steps) 
+function sendOpen() 
 {
+  var steps = document.getElementById("steps");
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("state").innerHTML = this.responseText;
-    }
+  xhttp.open("GET", "valve_open?steps="+steps, true);
+  xhttp.onload = function() {
+    document.getElementById("state").innerHTML = this.responseText;
   };
-  xhttp.open("GET", "valve_state?state="+valve_sts + "&steps="+steps, true);
+  
+  xhttp.send();
+}
+
+function sendClose() 
+{
+  var steps = document.getElementById("steps");
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("GET", "valve_close?steps="+steps, true);
+  xhttp.onload = function() {
+    document.getElementById("state").innerHTML = this.responseText;
+  };
   xhttp.send();
 }
 
